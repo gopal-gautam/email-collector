@@ -1,0 +1,559 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Newsletter Collector API",
+        "description": "A comprehensive API for collecting and managing newsletter subscriptions with project-based authentication, CORS support, and email management.",
+        "contact": {
+            "name": "Newsletter Collector Support",
+            "email": "admin@newsletter-collector.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "Newsletter Collector API Server"
+        }
+    ],
+    "paths": {
+        "/api/v1/subscriptions": {
+            "post": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "summary": "Subscribe to newsletter",
+                "description": "Add a new email subscription to a project",
+                "operationId": "f70cfeffc2fbfe890d75343daabb30e6",
+                "parameters": [
+                    {
+                        "name": "X-Project-ID",
+                        "in": "header",
+                        "description": "Project public ID (ULID)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Api-Key",
+                        "in": "header",
+                        "description": "Project API key",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "source_url": {
+                                        "type": "string",
+                                        "example": "https://example.com/signup"
+                                    },
+                                    "referrer": {
+                                        "type": "string",
+                                        "example": "https://google.com"
+                                    },
+                                    "meta": {
+                                        "type": "object",
+                                        "example": {
+                                            "campaign": "summer2024"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Subscription successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "subscription_id": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "state": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "subscribed"
+                                            ],
+                                            "example": "subscribed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully subscribed!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/api/v1/unsubscribe": {
+            "post": {
+                "tags": [
+                    "Unsubscribe"
+                ],
+                "summary": "Unsubscribe from newsletter",
+                "description": "Remove email subscription from a project",
+                "operationId": "d2b7ffa6bc53bcdb57a52c3a9d2fa775",
+                "parameters": [
+                    {
+                        "name": "X-Project-ID",
+                        "in": "header",
+                        "description": "Project public ID (ULID)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Api-Key",
+                        "in": "header",
+                        "description": "Project API key",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "No longer interested"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Unsubscribe successful (always returns 200 for privacy)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "If you were subscribed, you have been unsubscribed successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Validation failed"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded"
+                    }
+                }
+            }
+        },
+        "/unsubscribe": {
+            "get": {
+                "tags": [
+                    "Unsubscribe"
+                ],
+                "summary": "Unsubscribe via signed URL",
+                "description": "Unsubscribe using a signed URL from email",
+                "operationId": "f1897b9e2349e5ab6ae742b6c9470f1e",
+                "parameters": [
+                    {
+                        "name": "project",
+                        "in": "query",
+                        "description": "Project public ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email address",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "signature",
+                        "in": "query",
+                        "description": "URL signature",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unsubscribe page or success message"
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "description": "Check API health and status",
+                "operationId": "565e73de5e84b7b235298022c083230f",
+                "responses": {
+                    "200": {
+                        "description": "API is healthy",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Subscription": {
+                "required": [
+                    "id",
+                    "email",
+                    "status",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "subscribed",
+                            "unsubscribed",
+                            "bounced"
+                        ],
+                        "example": "subscribed"
+                    },
+                    "ip_address": {
+                        "type": "string",
+                        "example": "192.168.1.1"
+                    },
+                    "user_agent": {
+                        "type": "string",
+                        "example": "Mozilla/5.0..."
+                    },
+                    "source_url": {
+                        "type": "string",
+                        "example": "https://example.com/signup"
+                    },
+                    "referrer_url": {
+                        "type": "string",
+                        "example": "https://google.com"
+                    },
+                    "meta": {
+                        "type": "object",
+                        "example": {
+                            "campaign": "summer2024"
+                        }
+                    },
+                    "confirmed_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "nullable": true
+                    },
+                    "unsubscribed_at": {
+                        "type": "string",
+                        "format": "datetime",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "datetime"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "datetime"
+                    }
+                },
+                "type": "object"
+            },
+            "Project": {
+                "required": [
+                    "public_id",
+                    "name",
+                    "status"
+                ],
+                "properties": {
+                    "public_id": {
+                        "type": "string",
+                        "example": "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "My Newsletter Project"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Newsletter for my awesome project"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "inactive"
+                        ],
+                        "example": "active"
+                    },
+                    "double_opt_in": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "welcome_email": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "admin_notifications": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "allowed_origins": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "https://example.com",
+                            "https://www.example.com"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "datetime"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "datetime"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiResponse": {
+                "required": [
+                    "status"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "ok"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Operation completed successfully"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "required": [
+                    "error"
+                ],
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Validation failed"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "The provided data is invalid"
+                    },
+                    "errors": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "HealthResponse": {
+                "required": [
+                    "ok"
+                ],
+                "properties": {
+                    "ok": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "datetime",
+                        "example": "2024-01-15T10:30:00Z"
+                    },
+                    "version": {
+                        "type": "string",
+                        "example": "1.0.0"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "parameters": {
+            "ProjectIdHeader": {
+                "name": "X-Project-ID",
+                "in": "header",
+                "description": "Project Public ID (ULID format)",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "ApiKeyHeader": {
+                "name": "X-Api-Key",
+                "in": "header",
+                "description": "Project API Key",
+                "required": true,
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "OriginHeader": {
+                "name": "Origin",
+                "in": "header",
+                "description": "Request origin (for CORS validation)",
+                "required": false,
+                "schema": {
+                    "type": "string"
+                },
+                "example": "https://example.com"
+            }
+        },
+        "securitySchemes": {
+            "ProjectAuth": {
+                "type": "apiKey",
+                "description": "Project Public ID (ULID format)",
+                "name": "X-Project-ID",
+                "in": "header"
+            },
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "description": "Project API Key",
+                "name": "X-Api-Key",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Subscriptions",
+            "description": "Newsletter subscription management"
+        },
+        {
+            "name": "Unsubscribe",
+            "description": "Newsletter unsubscribe operations"
+        },
+        {
+            "name": "Health",
+            "description": "API health and status endpoints"
+        }
+    ]
+}
