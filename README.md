@@ -195,6 +195,60 @@ crontab -e
 * * * * * cd /var/www/newsletter-collector && php artisan schedule:run >> /dev/null 2>&1
 ```
 
+## Docker
+
+Use Docker for local development and testing. The setup provides `app` (PHP-FPM), `web` (Nginx), `db` (MySQL), `redis`, and `mailhog` services.
+
+### Quick start ✅
+
+1. Copy the example env file for Docker:
+
+```bash
+cp .env.docker .env
+```
+
+2. Build and start the stack:
+
+```bash
+docker compose up --build -d
+```
+
+3. Generate the application key and run migrations:
+
+```bash
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --force
+```
+
+4. (Optional) Install dependencies and build frontend assets (if you changed resources):
+
+```bash
+docker compose exec app composer install
+docker compose exec app npm install --prefix ./
+docker compose exec app npm run build --prefix ./
+```
+
+5. Open the app in your browser:
+
+- Application: http://localhost:8080
+- Mailhog UI: http://localhost:8025
+- MySQL (hosted): localhost:3306
+
+### Files added 🔧
+
+- `Dockerfile` — builds the PHP-FPM image with Composer and Node tooling
+- `docker-compose.yml` — orchestrates app, web, db, redis, and mailhog
+- `docker/nginx/default.conf` — nginx configuration serving `public`
+- `docker/entrypoint.sh` — small entry script to set permissions and optionally run migrations
+- `.env.docker` — example env file for Docker usage
+- `.dockerignore` — common exclusions for Docker context
+
+### Notes & troubleshooting ⚠️
+
+- On Windows, file permission behavior may differ; if you see permission issues, run `docker compose exec app chown -R www-data:www-data storage bootstrap/cache`.
+- If assets don’t reflect changes, rebuild the app image or run the frontend build commands inside the container.
+- To run artisan commands: `docker compose exec app php artisan <command>`.
+
 ## Usage
 
 ### Dashboard Access
